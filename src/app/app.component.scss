@@ -1,0 +1,343 @@
+.container {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.layout-wrapper {
+  position: relative;
+  height: 100%;
+  flex: 1;
+  min-width: 0;
+}
+
+.layout {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+/* ── Sidebar ─────────────────────────────────────────── */
+
+.sidebar {
+  width: 220px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  background: #1e1e1e;
+  color: #ccc;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 12px;
+  overflow: hidden;
+}
+
+.sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #2d2d2d;
+  flex-shrink: 0;
+}
+
+.sidebar__logo-mark {
+  background: #007acc;
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.sidebar__logo-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ddd;
+  white-space: nowrap;
+}
+
+.sidebar__section {
+  padding: 10px 0 8px;
+  border-bottom: 1px solid #2d2d2d;
+  flex-shrink: 0;
+}
+
+.sidebar__section:last-child {
+  border-bottom: none;
+}
+
+.sidebar__section--grow {
+  flex: 1;
+  overflow: hidden;
+}
+
+.sidebar__section-title {
+  padding: 0 14px 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+/* ── Panel drag items ────────────────────────────────── */
+
+.sidebar__panel-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 14px;
+  cursor: grab;
+  transition: background 0.1s;
+  position: relative;
+}
+
+.sidebar__panel-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar__panel-item:active {
+  cursor: grabbing;
+}
+
+.sidebar__panel-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.sidebar__panel-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sidebar__panel-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #ddd;
+}
+
+.sidebar__panel-hint {
+  font-size: 10px;
+  color: #555;
+}
+
+/* ── Controls ────────────────────────────────────────── */
+
+.sidebar__btn {
+  display: block;
+  margin: 0 14px;
+  padding: 6px 10px;
+  width: calc(100% - 28px);
+  background: #2a2a2a;
+  border: 1px solid #3c3c3c;
+  border-radius: 5px;
+  color: #bbb;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.sidebar__btn:hover {
+  background: #333;
+  color: #eee;
+}
+
+/* ── Toggle ──────────────────────────────────────────── */
+
+.sidebar__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px 0;
+  cursor: pointer;
+}
+
+.sidebar__toggle-input {
+  accent-color: #007acc;
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.sidebar__toggle-label {
+  font-size: 11px;
+  color: #bbb;
+  user-select: none;
+}
+
+/* ── Theme switcher ──────────────────────────────────── */
+
+.sidebar__theme-row {
+  display: flex;
+  gap: 5px;
+  padding: 0 14px;
+}
+
+.sidebar__theme-btn {
+  flex: 1;
+  padding: 5px 0;
+  background: #2a2a2a;
+  border: 1px solid #3c3c3c;
+  border-radius: 5px;
+  color: #777;
+  font-size: 10px;
+  text-transform: capitalize;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+
+.sidebar__theme-btn--active {
+  background: #007acc;
+  border-color: #007acc;
+  color: #fff;
+  font-weight: 600;
+}
+
+.tab-picker-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.tab-picker {
+  background: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  border-radius: 6px;
+  padding: 8px 0;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.tab-picker__title {
+  padding: 4px 14px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #666;
+  border-bottom: 1px solid #2d2d2d;
+  margin-bottom: 4px;
+}
+
+.tab-picker__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 14px;
+  background: transparent;
+  border: none;
+  color: #ccc;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #eee;
+  }
+
+  .sidebar__panel-icon {
+    width: 22px;
+    height: 22px;
+    font-size: 8px;
+  }
+}
+
+.sidebar__theme-label {
+  display: block;
+  padding: 4px 14px 2px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.sidebar__theme-btn:not(.sidebar__theme-btn--active):hover {
+  background: #333;
+  color: #ccc;
+}
+
+/* ── Custom drag preview ─────────────────────────────── */
+
+.app-drag-preview {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.55),
+    0 4px 10px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.app-drag-preview__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+  height: 36px;
+  background: #1e1e1e;
+  flex-shrink: 0;
+}
+
+.app-drag-preview__icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.app-drag-preview__title {
+  font-size: 12px;
+  font-weight: 500;
+  color: #ddd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-drag-preview__body {
+  flex: 1;
+  background: #252526;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(255, 255, 255, 0.03) 3px,
+    rgba(255, 255, 255, 0.03) 4px
+  );
+}

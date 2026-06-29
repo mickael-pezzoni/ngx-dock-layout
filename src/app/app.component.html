@@ -1,0 +1,157 @@
+<div class="container">
+  <aside class="sidebar">
+    <div class="sidebar__logo">
+      <span class="sidebar__logo-mark">NDL</span>
+      <span class="sidebar__logo-name">ngx-dock-layout</span>
+    </div>
+
+    <div class="sidebar__section">
+      <div class="sidebar__section-title">Panels</div>
+      @for (item of panelItems; track item.id) {
+        <div
+          class="sidebar__panel-item"
+          [ndlDraggableElement]="{ manager: layoutManager, tab: item.tab }"
+        >
+          <span class="sidebar__panel-icon" [style.background]="item.color">
+            {{ item.initials }}
+          </span>
+          <div class="sidebar__panel-info">
+            <span class="sidebar__panel-label">{{ item.label }}</span>
+            <span class="sidebar__panel-hint">Drag to create</span>
+          </div>
+          <ndl-drag-preview-container>
+            @if (useCustomDragPreview()) {
+              <ng-container
+                *ngTemplateOutlet="
+                  customDragPreviewTemplate;
+                  context: {
+                    tab: item.tab,
+                  }
+                "
+              />
+            } @else {
+              <ndl-drag-preview [tab]="item.tab" />
+            }
+          </ndl-drag-preview-container>
+        </div>
+      }
+    </div>
+
+    <div class="sidebar__section">
+      <div class="sidebar__section-title">Layout</div>
+      <button class="sidebar__btn" (click)="onReset()">↺ Reset layout</button>
+      <label class="sidebar__toggle">
+        <input
+          type="checkbox"
+          class="sidebar__toggle-input"
+          [checked]="useCustomDragPreview()"
+          (change)="useCustomDragPreview.set(!useCustomDragPreview())"
+        />
+        <span class="sidebar__toggle-label">Custom drag preview</span>
+      </label>
+    </div>
+
+    <div class="sidebar__section sidebar__section--grow">
+      <div class="sidebar__section-title">Actions</div>
+      <app-action-history [manager]="layoutManager" />
+    </div>
+
+    <div class="sidebar__section">
+      <div class="sidebar__section-title">Theme</div>
+      <span class="sidebar__theme-label">Built-in</span>
+      <div class="sidebar__theme-row">
+        @for (t of builtinThemes; track t) {
+          <button
+            class="sidebar__theme-btn"
+            [class.sidebar__theme-btn--active]="theme() === t"
+            (click)="setTheme(t)"
+          >
+            {{ t }}
+          </button>
+        }
+      </div>
+      <span class="sidebar__theme-label">Custom</span>
+      <div class="sidebar__theme-row">
+        <button
+          class="sidebar__theme-btn"
+          [class.sidebar__theme-btn--active]="theme() === 'custom'"
+          (click)="setTheme('custom')"
+        >
+          custom
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="layout-wrapper">
+    <ngx-dock-layout
+      class="layout"
+      [manager]="layoutManager"
+      [emptyPaneTemplate]="emptyPaneTemplate"
+      [dragPreviewTemplate]="useCustomDragPreview() ? customDragPreviewTemplate : undefined"
+      (addTab)="pendingAddTabHeader.set($event)"
+      (addHeader)="pendingAddHeaderPane.set($event)"
+    />
+
+    @if (pendingAddHeaderPane()) {
+      <div class="tab-picker-overlay" (click)="pendingAddHeaderPane.set(undefined)">
+        <div class="tab-picker" (click)="$event.stopPropagation()">
+          <div class="tab-picker__title">Open panel</div>
+          @for (item of panelItems; track item.id) {
+            <button class="tab-picker__item" (click)="onPickHeader(item)">
+              <span class="sidebar__panel-icon" [style.background]="item.color">
+                {{ item.initials }}
+              </span>
+              {{ item.label }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (pendingAddTabHeader()) {
+      <div class="tab-picker-overlay" (click)="pendingAddTabHeader.set(undefined)">
+        <div class="tab-picker" (click)="$event.stopPropagation()">
+          <div class="tab-picker__title">Add tab</div>
+          @for (item of panelItems; track item.id) {
+            <button class="tab-picker__item" (click)="onPickTab(item)">
+              <span class="sidebar__panel-icon" [style.background]="item.color">
+                {{ item.initials }}
+              </span>
+              {{ item.label }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </div>
+
+  <ng-template #customDragPreviewTemplate let-tab="tab">
+    <div class="app-drag-preview">
+      @let item = getPanelItem(tab);
+      <div class="app-drag-preview__header">
+        <span class="app-drag-preview__icon" [style.background]="item?.color">{{
+          item?.initials
+        }}</span>
+        <span class="app-drag-preview__title">{{ tab.title }}</span>
+      </div>
+      <div class="app-drag-preview__body"></div>
+    </div>
+  </ng-template>
+
+  <ng-template
+    #emptyPaneTemplate
+    let-layoutManager="layoutManager"
+    let-pane="pane"
+    let-parent="parent"
+  >
+    <app-empty-pane-picker
+      [items]="panelItems"
+      [manager]="layoutManager"
+      [paneId]="pane.id"
+      [parentId]="parent.id"
+      [isSplittable]="pane.isSplittable"
+      [isClosable]="pane.isClosable"
+    />
+  </ng-template>
+</div>

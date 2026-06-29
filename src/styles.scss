@@ -1,0 +1,16 @@
+@import '../projects/ngx-dock-layout/src/themes.css';
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.custom {
+  --ndl-color-base: #0a1f2e;
+  --ndl-color-surface: #051219;
+  --ndl-color-surface-alt: #112d40;
+  --ndl-color-border: #1a7fa8;
+  --ndl-color-text: #a8ddf5;
+}

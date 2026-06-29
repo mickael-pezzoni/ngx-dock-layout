@@ -1,0 +1,36 @@
+{
+  "name": "ngx-dock-layout",
+  "version": "1.0.0",
+  "description": "Angular library for building resizable, dockable panel layouts with split panes, movable tabs, drag & drop, and undo/redo — driven by signals.",
+  "author": "Mickael Pezzoni",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mickael-pezzoni/ngx-dock-layout.git"
+  },
+  "homepage": "https://mickael-pezzoni.github.io/ngx-dock-layout/",
+  "peerDependencies": {
+    "@angular/common": ">=19.0.0",
+    "@angular/core": ">=19.0.0",
+    "angular-split": "^20.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "license": "MIT",
+  "keywords": [
+    "angular",
+    "dock",
+    "docking",
+    "layout",
+    "panel",
+    "split",
+    "tabs",
+    "drag-drop",
+    "resizable",
+    "signals"
+  ],
+  "sideEffects": false,
+  "exports": {
+    "./themes.css": "./src/themes.css"
+  }
+}

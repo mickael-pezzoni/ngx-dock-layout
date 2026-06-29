@@ -1,0 +1,50 @@
+/* ngx-dock-layout — design tokens
+ *
+ * Import this file once at the application root (styles.scss / angular.json)
+ * so that all library components, including those placed outside
+ * <lib-ngx-dock-layout> (e.g. ndl-drag-preview), can access the tokens.
+ *
+ * Themes are activated by adding a class to any ancestor element:
+ *   .dark   — dark theme
+ *   .abyss  — abyss theme
+ */
+
+:root {
+  /* COLORS — light (default) */
+  --ndl-color-base: #e8edf3;
+  --ndl-color-surface: #ffffff;
+  --ndl-color-surface-alt: #f0f4f8;
+  --ndl-color-border: #d0d7de;
+  --ndl-color-text: #1f2328;
+
+  /* SPACING */
+  --ndl-spacing-xs: 2px;
+  --ndl-spacing-sm: 4px;
+  --ndl-spacing-md: 8px;
+
+  /* UI */
+  --ndl-radius-sm: 4px;
+  --ndl-splitter-size: 6px;
+  --ndl-tab-height: 30px;
+
+  --ndl-icon-xs: 12px;
+  --ndl-icon-sm: 16px;
+  --ndl-icon-md: 20px;
+  --ndl-icon-lg: 24px;
+}
+
+.dark {
+  --ndl-color-base: #1e1e1e;
+  --ndl-color-surface: #252526;
+  --ndl-color-surface-alt: #2d2d2d;
+  --ndl-color-border: #3c3c3c;
+  --ndl-color-text: #cccccc;
+}
+
+.abyss {
+  --ndl-color-base: #0d2137;
+  --ndl-color-surface: #07111e;
+  --ndl-color-surface-alt: #0f1e30;
+  --ndl-color-border: #1a3a5c;
+  --ndl-color-text: #b8cfe0;
+}
