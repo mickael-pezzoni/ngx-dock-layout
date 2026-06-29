@@ -111,7 +111,13 @@ export class AppComponent {
 > [!NOTE]
 > Everything present in the layout object represents what will be saved
 
-Make sure `ngx-dock-layout` takes up the necessary space:
+Import the themes file in your global CSS:
+
+```css
+@import 'ngx-dock-layout/themes.css';
+```
+
+And make sure `ngx-dock-layout` takes up the necessary space:
 
 ```css
 ngx-dock-layout {
@@ -159,9 +165,9 @@ type Pane = {
   id?: string;
   size?: number;
   header?: Header;
-  isSplittable?: boolean; // overrides settings.headers.panes.isSplittable
-  canAddTab?: boolean; // overrides settings.headers.panes.canAddTab
-  isClosable?: boolean; // overrides settings.headers.panes.isClosable
+  isSplittable?: boolean; // overrides settings.panes.isSplittable
+  canAddTab?: boolean; // overrides settings.panes.canAddTab
+  isClosable?: boolean; // overrides settings.panes.isClosable
 };
 ```
 
@@ -171,7 +177,7 @@ type Pane = {
 type Header = {
   type: 'header';
   id?: string;
-  isVisible?: boolean; // overrides settings.headers.isVisible
+  isVisible?: boolean; // overrides settings.panes.headers.isVisible
   tabs: Tab[];
 };
 ```
@@ -184,8 +190,9 @@ type Tab = {
   id?: string;
   title: string;
   isActive?: boolean; // first tab is active by default
-  isClosable?: boolean; // overrides settings.headers.panes.tabs.isClosable
-  isDraggable?: boolean; // overrides settings.headers.panes.tabs.isDraggable
+  isClosable?: boolean; // overrides settings.panes.headers.tabs.isClosable
+  isDraggable?: boolean; // overrides settings.panes.headers.tabs.isDraggable
+  isEditable?: boolean; // overrides settings.panes.headers.tabs.isEditable
   component?: {
     id: string; // key in your components map
     inputs?: Record<string, unknown>; // passed as component inputs
@@ -203,15 +210,17 @@ const layout: Layout = {
     /* ... */
   },
   settings: {
-    headers: {
-      isVisible: true, // show/hide all headers (default: true)
-      panes: {
-        isSplittable: true, // show split buttons on empty panes (default: true)
-        canAddTab: true, // show add-tab button (default: false)
-        isClosable: true, // show close button on empty panes (default: true)
+    panes: {
+      isSplittable: true, // show split buttons on empty panes (default: true)
+      canAddTab: true, // show add-tab button on empty panes (default: false)
+      isClosable: true, // show close button on empty panes (default: true)
+      headers: {
+        isVisible: true, // show/hide all headers (default: true)
+        canAddTab: true, // show add-tab button in headers (default: false)
         tabs: {
           isClosable: true, // show close button on all tabs (default: true)
           isDraggable: true, // allow tabs to be dragged (default: true)
+          isEditable: false, // show edit button on all tabs (default: false)
         },
       },
     },

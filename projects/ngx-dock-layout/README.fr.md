@@ -54,7 +54,7 @@ Elle permet d'organiser vos composants dans un arbre de lignes, colonnes et ongl
 
 ## Prérequis
 
-- Angular 21.2+
+- Angular 19.0+
 - `angular-split` 20+
 
 ## Installation
@@ -113,7 +113,13 @@ export class AppComponent {
 > [!NOTE]
 > Tout ce qui est présent dans l'objet layout représente ce qui sera sauvegardé
 
-Assurez-vous que `ngx-dock-layout` occupe bien l'espace nécessaire :
+Importez le fichier de thèmes dans votre CSS global :
+
+```css
+@import 'ngx-dock-layout/themes.css';
+```
+
+Et assurez-vous que `ngx-dock-layout` occupe l'espace nécessaire :
 
 ```css
 ngx-dock-layout {
@@ -161,9 +167,9 @@ type Pane = {
   id?: string;
   size?: number;
   header?: Header;
-  isSplittable?: boolean; // surcharge settings.headers.panes.isSplittable
-  canAddTab?: boolean; // surcharge settings.headers.panes.canAddTab
-  isClosable?: boolean; // surcharge settings.headers.panes.isClosable
+  isSplittable?: boolean; // surcharge settings.panes.isSplittable
+  canAddTab?: boolean; // surcharge settings.panes.canAddTab
+  isClosable?: boolean; // surcharge settings.panes.isClosable
 };
 ```
 
@@ -173,7 +179,7 @@ type Pane = {
 type Header = {
   type: 'header';
   id?: string;
-  isVisible?: boolean; // surcharge settings.headers.isVisible
+  isVisible?: boolean; // surcharge settings.panes.headers.isVisible
   tabs: Tab[];
 };
 ```
@@ -186,8 +192,9 @@ type Tab = {
   id?: string;
   title: string;
   isActive?: boolean; // le premier tab est actif par défaut
-  isClosable?: boolean; // surcharge settings.headers.panes.tabs.isClosable
-  isDraggable?: boolean; // surcharge settings.headers.panes.tabs.isDraggable
+  isClosable?: boolean; // surcharge settings.panes.headers.tabs.isClosable
+  isDraggable?: boolean; // surcharge settings.panes.headers.tabs.isDraggable
+  isEditable?: boolean; // surcharge settings.panes.headers.tabs.isEditable
   component?: {
     id: string; // clé dans votre map de composants
     inputs?: Record<string, unknown>; // passés en tant qu'inputs du composant
@@ -205,15 +212,17 @@ const layout: Layout = {
     /* ... */
   },
   settings: {
-    headers: {
-      isVisible: true, // afficher/masquer tous les headers (défaut : true)
-      panes: {
-        isSplittable: true, // afficher les boutons de division sur les panes vides (défaut : true)
-        canAddTab: true, // afficher le bouton d'ajout de tab (défaut : false)
-        isClosable: true, // afficher le bouton de fermeture sur les panes vides (défaut : true)
+    panes: {
+      isSplittable: true, // afficher les boutons de division sur les panes vides (défaut : true)
+      canAddTab: true, // afficher le bouton d'ajout de tab sur les panes vides (défaut : false)
+      isClosable: true, // afficher le bouton de fermeture sur les panes vides (défaut : true)
+      headers: {
+        isVisible: true, // afficher/masquer tous les headers (défaut : true)
+        canAddTab: true, // afficher le bouton d'ajout de tab dans les headers (défaut : false)
         tabs: {
           isClosable: true, // afficher le bouton de fermeture sur tous les tabs (défaut : true)
           isDraggable: true, // autoriser le déplacement des tabs (défaut : true)
+          isEditable: false, // afficher le bouton d'édition sur tous les tabs (défaut : false)
         },
       },
     },
