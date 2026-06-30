@@ -52,7 +52,7 @@
 
 ## Requirements
 
-- Angular 21.2+
+- Angular 19.0+
 - `angular-split` 20+
 
 ## Installation
@@ -115,15 +115,6 @@ Import the themes file in your global CSS:
 
 ```css
 @import 'ngx-dock-layout/themes.css';
-```
-
-And make sure `ngx-dock-layout` takes up the necessary space:
-
-```css
-ngx-dock-layout {
-  display: block;
-  height: 100vh;
-}
 ```
 
 ## Layout Structure

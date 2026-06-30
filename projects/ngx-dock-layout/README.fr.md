@@ -119,15 +119,6 @@ Importez le fichier de thèmes dans votre CSS global :
 @import 'ngx-dock-layout/themes.css';
 ```
 
-Et assurez-vous que `ngx-dock-layout` occupe l'espace nécessaire :
-
-```css
-ngx-dock-layout {
-  display: block;
-  height: 100vh;
-}
-```
-
 ## Structure du layout
 
 Un layout est un arbre qui doit commencer par `Row` ou `Column`. Celles-ci peuvent ensuite en contenir d'autres avant de terminer par un `Pane` pour afficher vos composants.
