@@ -1,6 +1,6 @@
 # ngx-dock-layout
 
-[Read the documentation in English](README.md)
+[Read the documentation in English](https://github.com/mickael-pezzoni/ngx-dock-layout/blob/main/projects/ngx-dock-layout/README.md)
 
 **ngx-dock-layout** est une librairie Angular pour créer des interfaces à panneaux redimensionnables, à la manière d'un IDE.
 

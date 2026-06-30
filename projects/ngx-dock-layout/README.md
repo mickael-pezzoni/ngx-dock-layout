@@ -1,6 +1,6 @@
 # ngx-dock-layout
 
-[Lire la documentation en français](README.fr.md)
+[Lire la documentation en français](https://github.com/mickael-pezzoni/ngx-dock-layout/blob/main/projects/ngx-dock-layout/README.fr.md)
 
 **ngx-dock-layout** is an Angular library for building resizable panel interfaces, in the style of an IDE. It lets you organize your components in a tree of rows, columns, and tabs that users can reorganize by drag and drop, split, or close on the fly. Designed for Angular 21 with signals and OnPush, it integrates without complex configuration.
 
@@ -583,7 +583,7 @@ ndl-tab {
 
 ## API Reference
 
-For the full `NdlLayoutManager` API, action system, layout utilities, and DI token reference, see [API.md](API.md).
+For the full `NdlLayoutManager` API, action system, layout utilities, and DI token reference, see [API.md](https://github.com/mickael-pezzoni/ngx-dock-layout/blob/main/projects/ngx-dock-layout/API.md).
 
 ## License
 
