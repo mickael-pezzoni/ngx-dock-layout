@@ -1,7 +1,16 @@
-import { linkedSignal, signal, Signal, WritableSignal } from '@angular/core';
+import { computed, linkedSignal, signal, Signal, WritableSignal } from '@angular/core';
 import { SplitAreaSize } from 'angular-split';
 import { Components, InitConfig, Layout, NewHeader, NewTab, Pane } from './public-type';
-import { StrictHeader, StrictItem, StrictLayout, StrictSettings, StrictTab } from './model';
+import {
+  StrictColumn,
+  StrictHeader,
+  StrictItem,
+  StrictLayout,
+  StrictPane,
+  StrictRow,
+  StrictSettings,
+  StrictTab,
+} from './model';
 import {
   activateTab,
   applySizes,
@@ -9,17 +18,19 @@ import {
   everyItem,
   findItem,
   findItemByIdOrFail,
+  findParentItem,
   insertHeader,
   insertTab,
+  maximizePane,
   removePane,
   removeTab,
+  restorePane,
   splitPane,
 } from './utils/layout.utils';
 import {
   transformHeaderToStrictHeader,
-  transformItemToStrictItem,
   transformPaneToStrictPane,
-  transformSettingsToStrictSettings,
+  transformRootToStrictRoot,
   transformTabToStrictTab,
 } from './utils/to-strict.utils';
 import { Action, LayoutActionType } from './action';
@@ -32,27 +43,36 @@ export class NdlLayoutManager<T extends PropertyKey = string> {
   readonly settings: Signal<StrictSettings | undefined>;
   readonly actions: ActionHistory['actions'];
   readonly currentActionId: ActionHistory['currentActionId'];
+  readonly maximizedPane: Signal<
+    { pane: StrictPane; parent: StrictRow | StrictColumn } | undefined
+  >;
 
   private constructor(config: Layout, components: Components<T>, maxHistorySize?: number) {
     this.#history = new ActionHistory(maxHistorySize);
     this.actions = this.#history.actions;
     this.currentActionId = this.#history.currentActionId;
     this.components = components;
-    const strictSettings = config.settings
-      ? transformSettingsToStrictSettings(config.settings)
-      : undefined;
-    const strictItem = transformItemToStrictItem(config.root, components, strictSettings);
-    this.config = signal({ root: strictItem, settings: strictSettings });
+
+    const strictLayout = transformRootToStrictRoot(config, components);
+    this.config = signal(strictLayout);
     this.settings = linkedSignal(() => this.config().settings);
+    this.maximizedPane = computed(() => {
+      const root = this.config().root;
+      const pane = findItem((item) => item.type === 'pane' && item.isMaximized, root) as
+        | StrictPane
+        | undefined;
+      if (!pane) return undefined;
+      return {
+        pane,
+        parent: findParentItem(root, ({ id }) => id === pane.id) as StrictRow | StrictColumn,
+      };
+    });
   }
 
   setConfig(config: Layout) {
-    const strictSettings = config.settings
-      ? transformSettingsToStrictSettings(config.settings)
-      : undefined;
-    const strictItem = transformItemToStrictItem(config.root, this.components, strictSettings);
+    const strictLayout = transformRootToStrictRoot(config, this.components);
     this.#history.clear();
-    this.config.set({ root: strictItem, settings: strictSettings });
+    this.config.set(strictLayout);
   }
 
   backConfig(): void {
@@ -104,6 +124,30 @@ export class NdlLayoutManager<T extends PropertyKey = string> {
         root: applySizes(layout.root, parentId, size),
       })),
     );
+  }
+
+  maximizePane(paneId: string): void {
+    this.dispatch(
+      this.createAction(LayoutActionType.MaximizePane).operation((layout) => ({
+        ...layout,
+        root: maximizePane(layout.root, paneId),
+      })),
+    );
+  }
+  restorePane(paneId: string): void {
+    this.dispatch(
+      this.createAction(LayoutActionType.RestorePane).operation((layout) => ({
+        ...layout,
+        root: restorePane(layout.root, paneId),
+      })),
+    );
+  }
+  toggleMaximizePane(paneId: string): void {
+    if (this.maximizedPane()?.pane.id === paneId) {
+      this.restorePane(paneId);
+    } else {
+      this.maximizePane(paneId);
+    }
   }
 
   split(

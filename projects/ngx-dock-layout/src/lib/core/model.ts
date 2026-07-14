@@ -21,7 +21,8 @@ export type StrictTab = {
 export type StrictHeader = {
   id: string;
   type: 'header';
-  isVisible?: boolean;
+  isVisible: boolean;
+  isMaximizable: boolean;
   canAddTab: boolean;
   tabs: StrictTab[];
 };
@@ -31,6 +32,7 @@ export type StrictPane = {
   size?: SplitAreaSize;
   header?: StrictHeader;
   isSplittable: boolean;
+  isMaximized: boolean;
   canAddTab: boolean;
   isClosable: boolean;
 };
@@ -137,6 +139,16 @@ export type StrictHeaderSettings = {
    * to handle the click and add a tab to the header.
    */
   canAddTab?: boolean;
+
+  /**
+   * Whether headers display a maximize button.
+   *
+   * @default true
+   *
+   * Acts as the default for all headers.
+   * Individual headers can override this using `Header.isMaximizable`.
+   */
+  isMaximizable?: boolean;
 
   tabs?: StrictTabSettings;
 };

@@ -4,9 +4,10 @@ import {
   transformHeaderToStrictHeader,
   transformPaneToStrictPane,
   transformItemToStrictItem,
+  transformRootToStrictRoot,
 } from './to-strict.utils';
-import type { Header, Pane, Row, Settings, Tab } from '../public-type';
-import type { StrictRow } from '../model';
+import type { Header, Layout, Pane, Row, Settings, Tab } from '../public-type';
+import type { StrictPane, StrictRow } from '../model';
 
 const components = {};
 
@@ -84,21 +85,42 @@ describe('to-strict.utils', () => {
       expect(transformHeaderToStrictHeader(header, components).id).toBe('h-1');
     });
 
-    it('defaults canAddTab to true, uses settings value, header value takes precedence', () => {
+    it('defaults canAddTab to false when not provided', () => {
       const header: Header = { type: 'header', tabs: [] };
       expect(transformHeaderToStrictHeader(header, components).canAddTab).toBe(false);
+    });
 
-      const settings: Settings = { panes: { headers: { canAddTab: false } } };
-      expect(transformHeaderToStrictHeader(header, components, settings).canAddTab).toBe(false);
+    it('uses settings.panes.headers.canAddTab when header value is not set', () => {
+      const header: Header = { type: 'header', tabs: [] };
+      const settings: Settings = { panes: { headers: { canAddTab: true } } };
+      expect(transformHeaderToStrictHeader(header, components, settings).canAddTab).toBe(true);
+    });
 
-      const headerWithFlag: Header = {
-        type: 'header',
-        canAddTab: true,
-        tabs: [],
-      };
+    it('lets Header.canAddTab override settings', () => {
+      const settings: Settings = { panes: { headers: { canAddTab: true } } };
+      const headerWithFlag: Header = { type: 'header', canAddTab: false, tabs: [] };
       expect(transformHeaderToStrictHeader(headerWithFlag, components, settings).canAddTab).toBe(
-        true,
+        false,
       );
+    });
+
+    it('defaults isMaximizable to true when not provided', () => {
+      const header: Header = { type: 'header', tabs: [] };
+      expect(transformHeaderToStrictHeader(header, components).isMaximizable).toBe(true);
+    });
+
+    it('uses settings.panes.headers.isMaximizable when header value is not set', () => {
+      const header: Header = { type: 'header', tabs: [] };
+      const settings: Settings = { panes: { headers: { isMaximizable: false } } };
+      expect(transformHeaderToStrictHeader(header, components, settings).isMaximizable).toBe(false);
+    });
+
+    it('lets Header.isMaximizable override settings', () => {
+      const settings: Settings = { panes: { headers: { isMaximizable: false } } };
+      const headerWithFlag: Header = { type: 'header', isMaximizable: true, tabs: [] };
+      expect(
+        transformHeaderToStrictHeader(headerWithFlag, components, settings).isMaximizable,
+      ).toBe(true);
     });
 
     it('activates the first tab when none is active', () => {
@@ -174,6 +196,11 @@ describe('to-strict.utils', () => {
       const pane: Pane = { type: 'pane' };
       expect(transformPaneToStrictPane(pane, components).header).toBeUndefined();
     });
+
+    it('defaults isMaximized to false when not provided', () => {
+      const pane: Pane = { type: 'pane' };
+      expect(transformPaneToStrictPane(pane, components).isMaximized).toBe(false);
+    });
   });
 
   describe('transformItemToStrictItem', () => {
@@ -208,6 +235,57 @@ describe('to-strict.utils', () => {
       const result = transformItemToStrictItem(row, components) as StrictRow;
       const inner = result.children[0] as StrictRow;
       expect(inner.children[0]).toMatchObject({ id: 'pane-1' });
+    });
+  });
+
+  describe('transformRootToStrictRoot', () => {
+    it('transforms the root item recursively', () => {
+      const layout: Layout = {
+        root: { type: 'row', children: [{ type: 'pane', id: 'pane-1' }] },
+      };
+      const result = transformRootToStrictRoot(layout, components);
+      expect(result.root.children[0]).toMatchObject({ id: 'pane-1', isSplittable: true });
+    });
+
+    it('leaves settings undefined when not provided', () => {
+      const layout: Layout = { root: { type: 'row', children: [] } };
+      expect(transformRootToStrictRoot(layout, components).settings).toBeUndefined();
+    });
+
+    it('transforms settings when provided', () => {
+      const settings: Settings = { panes: { isSplittable: false } };
+      const layout: Layout = { root: { type: 'row', children: [] }, settings };
+      expect(transformRootToStrictRoot(layout, components).settings).toEqual(settings);
+    });
+
+    it('keeps a single pane marked as maximized as-is', () => {
+      const layout: Layout = {
+        root: {
+          type: 'row',
+          children: [
+            { type: 'pane', id: 'pane-1', isMaximized: true },
+            { type: 'pane', id: 'pane-2' },
+          ],
+        },
+      };
+      const result = transformRootToStrictRoot(layout, components);
+      expect((result.root.children[0] as StrictPane).isMaximized).toBe(true);
+      expect((result.root.children[1] as StrictPane).isMaximized).toBe(false);
+    });
+
+    it('normalises multiple panes marked as maximized to only the first one', () => {
+      const layout: Layout = {
+        root: {
+          type: 'row',
+          children: [
+            { type: 'pane', id: 'pane-1', isMaximized: true },
+            { type: 'pane', id: 'pane-2', isMaximized: true },
+          ],
+        },
+      };
+      const result = transformRootToStrictRoot(layout, components);
+      expect((result.root.children[0] as StrictPane).isMaximized).toBe(true);
+      expect((result.root.children[1] as StrictPane).isMaximized).toBe(false);
     });
   });
 });

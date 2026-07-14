@@ -175,6 +175,23 @@ export function setActiveTab<T extends StrictTab | Tab>(tabs: T[], activeTabId?:
 }
 
 /**
+ * Ensures at most one pane in the tree has `isMaximized` set to `true`.
+ * Keeps the first pane found with `isMaximized: true` (depth-first) and
+ * clears the flag on every other pane.
+ *
+ * @param root - Root node of the subtree to normalise (not mutated).
+ */
+export function setMaximizedPanes<T extends StrictColumn | StrictRow>(root: T): T {
+  const maximizedPane = findItem((item) => item.type === 'pane' && item.isMaximized, root);
+  return mapItem(root, {
+    pane: (pane) => ({
+      ...pane,
+      isMaximized: pane.id === maximizedPane?.id,
+    }),
+  });
+}
+
+/**
  * Returns a new layout root where the children of the row/column identified by
  * `parentId` have their sizes replaced by `size`.
  */
@@ -365,4 +382,54 @@ export function splitPane(
       };
     },
   });
+}
+
+/**
+ * Returns a new layout root where the pane `paneId` has `isMaximized` set to
+ * `true` and every other pane has `isMaximized` set to `false`.
+ */
+export function maximizePane(
+  root: StrictRow | StrictColumn,
+  paneId: string,
+): StrictRow | StrictColumn {
+  return mapItem(root, { pane: (pane) => ({ ...pane, isMaximized: pane.id === paneId }) });
+}
+
+/**
+ * Returns a new layout root where the pane `paneId` has `isMaximized` set
+ * back to `false`. Other panes are left untouched.
+ */
+export function restorePane(
+  root: StrictRow | StrictColumn,
+  paneId: string,
+): StrictRow | StrictColumn {
+  return mapItem(root, {
+    pane: (pane) => ({ ...pane, isMaximized: paneId === pane.id ? false : pane.isMaximized }),
+  });
+}
+
+/**
+ * Returns the item that directly contains a child matching `predicate`
+ * (a row/column for a matching child item, a pane for a matching header,
+ * or a header for a matching tab), or `undefined` if none is found in the tree.
+ *
+ * @param root - Root node to start the search from.
+ * @param predicate - Test function called on each direct child of a node.
+ */
+export function findParentItem<T extends StrictItem>(
+  root: T,
+  predicate: (item: StrictItem) => boolean,
+): StrictItem | undefined {
+  return findItem((item) => {
+    if (item.type === 'column' || item.type === 'row') {
+      return item.children.some((child) => predicate(child));
+    }
+    if (item.type === 'pane' && item.header) {
+      return predicate(item.header);
+    }
+    if (item.type === 'header') {
+      return item.tabs.some((tab) => predicate(tab));
+    }
+    return false;
+  }, root);
 }

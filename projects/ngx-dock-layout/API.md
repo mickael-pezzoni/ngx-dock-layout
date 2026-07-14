@@ -22,6 +22,9 @@
       - [`everyItem(predicate, item?): boolean`](#everyitempredicate-item-boolean)
       - [`moveTab(source, target): void`](#movetabsource-target-void)
       - [`dropTabToPane(source, target): void`](#droptabtopanesource-target-void)
+      - [`maximizePane(paneId: string): void`](#maximizepanepaneid-string-void)
+      - [`restorePane(paneId: string): void`](#restorepanepaneid-string-void)
+      - [`toggleMaximizePane(paneId: string): void`](#togglemaximizepanepaneid-string-void)
   - [Action System](#action-system)
     - [`LayoutActionType` enum](#layoutactiontype-enum)
     - [Reading the history](#reading-the-history)
@@ -48,13 +51,14 @@ NdlLayoutManager.init({
 
 ### Properties
 
-| Property          | Type                                  | Description                                                 |
-| ----------------- | ------------------------------------- | ----------------------------------------------------------- |
-| `config`          | `Signal<StrictLayout>`                | Read-only signal of the current layout state                |
-| `settings`        | `Signal<StrictSettings \| undefined>` | Computed signal of global settings                          |
-| `components`      | `Components<T>`                       | The registered component map                                |
-| `actions`         | `Signal<Record<string, Action>>`      | All recorded actions, keyed by UUID                         |
-| `currentActionId` | `Signal<string \| undefined>`         | Cursor position in the history; `undefined` when at the tip |
+| Property          | Type                                                                           | Description                                                                      |
+| ----------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| `config`          | `Signal<StrictLayout>`                                                         | Read-only signal of the current layout state                                     |
+| `settings`        | `Signal<StrictSettings \| undefined>`                                          | Computed signal of global settings                                               |
+| `components`      | `Components<T>`                                                                | The registered component map                                                     |
+| `actions`         | `Signal<Record<string, Action>>`                                               | All recorded actions, keyed by UUID                                              |
+| `currentActionId` | `Signal<string \| undefined>`                                                  | Cursor position in the history; `undefined` when at the tip                      |
+| `maximizedPane`   | `Signal<{ pane: StrictPane; parent: StrictRow \| StrictColumn } \| undefined>` | The currently maximized pane (and its parent row/column), or `undefined` if none |
 
 ### Methods
 
@@ -71,11 +75,11 @@ layoutManager.setConfig(newLayout);
 Add a tab to a header. Pass `index` to insert at a specific position (default: append).
 
 ```typescript
-layoutManager.addTab("header-id", {
-  type: "tab",
-  title: "New File",
+layoutManager.addTab('header-id', {
+  type: 'tab',
+  title: 'New File',
   isActive: true,
-  component: { id: "editor", inputs: { filePath: "new-file.ts" } },
+  component: { id: 'editor', inputs: { filePath: 'new-file.ts' } },
 });
 ```
 
@@ -84,7 +88,7 @@ layoutManager.addTab("header-id", {
 Remove a tab from a header. The next tab is activated automatically.
 
 ```typescript
-layoutManager.closeTab("header-id", "tab-id");
+layoutManager.closeTab('header-id', 'tab-id');
 ```
 
 #### `editTab(headerId: string, tabId: string, update: Partial<StrictTab>): void`
@@ -92,7 +96,7 @@ layoutManager.closeTab("header-id", "tab-id");
 Update tab properties (e.g. title, isActive).
 
 ```typescript
-layoutManager.editTab("header-id", "tab-id", { title: "Renamed" });
+layoutManager.editTab('header-id', 'tab-id', { title: 'Renamed' });
 ```
 
 #### `activeTab(headerId: string, tabId: string): void`
@@ -100,7 +104,7 @@ layoutManager.editTab("header-id", "tab-id", { title: "Renamed" });
 Activate a tab programmatically.
 
 ```typescript
-layoutManager.activeTab("header-id", "tab-id");
+layoutManager.activeTab('header-id', 'tab-id');
 ```
 
 #### `addHeader(paneId: string, header: NewHeader): void`
@@ -108,9 +112,9 @@ layoutManager.activeTab("header-id", "tab-id");
 Add a header (and optional tabs) to an empty pane.
 
 ```typescript
-layoutManager.addHeader("pane-id", {
-  type: "header",
-  tabs: [{ type: "tab", title: "My Tab" }],
+layoutManager.addHeader('pane-id', {
+  type: 'header',
+  tabs: [{ type: 'tab', title: 'My Tab' }],
 });
 ```
 
@@ -119,7 +123,7 @@ layoutManager.addHeader("pane-id", {
 Remove a pane from the layout. Empty parent rows/columns are cleaned up automatically.
 
 ```typescript
-layoutManager.closePane("pane-id");
+layoutManager.closePane('pane-id');
 ```
 
 #### `split(rowOrColumnId, paneId, splitType, position, pane?): void`
@@ -127,11 +131,11 @@ layoutManager.closePane("pane-id");
 Split a pane into two. `position` is `0` (new pane first) or `1` (new pane second).
 
 ```typescript
-layoutManager.split("row-id", "pane-id", "column", 1, {
-  type: "pane",
+layoutManager.split('row-id', 'pane-id', 'column', 1, {
+  type: 'pane',
   header: {
-    type: "header",
-    tabs: [{ type: "tab", title: "New Pane" }],
+    type: 'header',
+    tabs: [{ type: 'tab', title: 'New Pane' }],
   },
 });
 ```
@@ -145,7 +149,7 @@ Update the size of children within a row or column (called internally on gutter 
 Find a node in the layout tree.
 
 ```typescript
-const tab = layoutManager.findItem((item) => item.type === "tab" && item.id === "tab-1");
+const tab = layoutManager.findItem((item) => item.type === 'tab' && item.id === 'tab-1');
 ```
 
 #### `findItemByIdOrFail(id): StrictItem`
@@ -173,7 +177,7 @@ layoutManager.nextConfig();
 Rename a tab. Shorthand for `editTab` with only a `title` change.
 
 ```typescript
-layoutManager.renameTab("header-id", "tab-id", "New Title");
+layoutManager.renameTab('header-id', 'tab-id', 'New Title');
 ```
 
 #### `everyItem(predicate, item?): boolean`
@@ -181,7 +185,7 @@ layoutManager.renameTab("header-id", "tab-id", "New Title");
 Returns `true` if the predicate holds on every node in the layout tree (defaults to the full tree).
 
 ```typescript
-const allDraggable = layoutManager.everyItem((item) => item.type !== "tab" || item.isDraggable);
+const allDraggable = layoutManager.everyItem((item) => item.type !== 'tab' || item.isDraggable);
 ```
 
 #### `moveTab(source, target): void`
@@ -189,7 +193,10 @@ const allDraggable = layoutManager.everyItem((item) => item.type !== "tab" || it
 Move a tab from one header to another (or reorder within the same header). Used internally by drag-and-drop.
 
 ```typescript
-layoutManager.moveTab({ tab: strictTab, headerId: "source-header", paneId: "source-pane" }, { headerId: "target-header", index: 2 });
+layoutManager.moveTab(
+  { tab: strictTab, headerId: 'source-header', paneId: 'source-pane' },
+  { headerId: 'target-header', index: 2 },
+);
 ```
 
 #### `dropTabToPane(source, target): void`
@@ -197,7 +204,34 @@ layoutManager.moveTab({ tab: strictTab, headerId: "source-header", paneId: "sour
 Drop a tab onto a pane zone. Used internally when a tab is dragged over a pane edge or center. `zone` can be `'top' | 'left' | 'right' | 'bottom' | 'center'`. Non-center zones create a new split; `'center'` appends to the target header.
 
 ```typescript
-layoutManager.dropTabToPane({ tab: strictTab, headerId: "source-header", paneId: "source-pane" }, { paneId: "target-pane", parentId: "parent-row", zone: "right" });
+layoutManager.dropTabToPane(
+  { tab: strictTab, headerId: 'source-header', paneId: 'source-pane' },
+  { paneId: 'target-pane', parentId: 'parent-row', zone: 'right' },
+);
+```
+
+#### `maximizePane(paneId: string): void`
+
+Maximize a pane so it visually takes over the whole layout. Only one pane can be maximized at a time; maximizing a different pane automatically restores the previous one.
+
+```typescript
+layoutManager.maximizePane('pane-id');
+```
+
+#### `restorePane(paneId: string): void`
+
+Restore a previously maximized pane back to its normal position in the layout.
+
+```typescript
+layoutManager.restorePane('pane-id');
+```
+
+#### `toggleMaximizePane(paneId: string): void`
+
+Maximizes the pane if it isn't currently maximized, restores it otherwise. Shorthand for checking `isMaximized` yourself before calling `maximizePane`/`restorePane`.
+
+```typescript
+layoutManager.toggleMaximizePane('pane-id');
 ```
 
 ---
@@ -210,19 +244,21 @@ Every mutation performed by `NdlLayoutManager` is wrapped in an `Action` and rec
 
 All built-in mutations are identified by a value of `LayoutActionType`:
 
-| Value           | Triggered by          |
-| --------------- | --------------------- |
-| `Resize`        | `setSizes()`          |
-| `Split`         | `split()`             |
-| `ActiveTab`     | `activeTab()`         |
-| `AddTab`        | `addTab()`            |
-| `AddHeader`     | `addHeader()`         |
-| `EditTab`       | `editTab()`           |
-| `CloseTab`      | `closeTab()`          |
-| `ClosePane`     | `closePane()`         |
-| `RenameTab`     | `renameTab()`         |
-| `MoveTab`       | `moveTab()`           |
-| `DropTabToPane` | drop onto a pane zone |
+| Value           | Triggered by                                                         |
+| --------------- | -------------------------------------------------------------------- |
+| `Resize`        | `setSizes()`                                                         |
+| `Split`         | `split()`                                                            |
+| `ActiveTab`     | `activeTab()`                                                        |
+| `AddTab`        | `addTab()`                                                           |
+| `AddHeader`     | `addHeader()`                                                        |
+| `EditTab`       | `editTab()`                                                          |
+| `CloseTab`      | `closeTab()`                                                         |
+| `ClosePane`     | `closePane()`                                                        |
+| `RenameTab`     | `renameTab()`                                                        |
+| `MoveTab`       | `moveTab()`                                                          |
+| `DropTabToPane` | drop onto a pane zone                                                |
+| `MaximizePane`  | `maximizePane()` (also via `toggleMaximizePane()` when it maximizes) |
+| `RestorePane`   | `restorePane()` (also via `toggleMaximizePane()` when it restores)   |
 
 ### Reading the history
 
@@ -244,10 +280,10 @@ Use `createAction()` + `operation()` + `dispatch()` to build an action that part
 `operation()` receives the current `StrictLayout` and must return a new one — never mutate in place. Chain multiple calls for multi-step changes that commit atomically.
 
 ```typescript
-import { mapItem } from "ngx-dock-layout";
+import { mapItem } from 'ngx-dock-layout';
 
 // Mark every tab in a specific header as non-closable
-const action = layoutManager.createAction("lockTabs").operation((layout) => ({
+const action = layoutManager.createAction('lockTabs').operation((layout) => ({
   ...layout,
   root: mapItem(layout.root, {
     header: (header) =>
@@ -267,7 +303,7 @@ layoutManager.dispatch(action);
 
 ```typescript
 const action = layoutManager
-  .createAction("myAction")
+  .createAction('myAction')
   .operation((layout) => {
     /* … */
   })
@@ -280,7 +316,7 @@ layoutManager.dispatch(action);
 
 ```typescript
 const action = layoutManager
-  .createAction("addAndActivate")
+  .createAction('addAndActivate')
   .operation((layout) => ({
     ...layout,
     root: insertTab(layout.root, headerId, newTab),
@@ -299,24 +335,28 @@ layoutManager.dispatch(action);
 
 All functions below are exported from `ngx-dock-layout` and operate immutably on the layout tree.
 
-| Function                                            | Description                                     |
-| --------------------------------------------------- | ----------------------------------------------- |
-| `mapItem(root, maps)`                               | Walk the tree, applying per-type callbacks      |
-| `findItem(predicate, root)`                         | Depth-first search, returns first match         |
-| `findItemByIdOrFail(id, root)`                      | Like `findItem` but throws if missing           |
-| `everyItem(predicate, root)`                        | Returns `true` if predicate holds on every node |
-| `insertTab(root, headerId, tab, index?)`            | Insert a tab into a header                      |
-| `removeTab(root, headerId, tabId)`                  | Remove a tab, normalises active state           |
-| `insertHeader(root, paneId, header)`                | Attach a header to an empty pane                |
-| `activateTab(root, headerId, tabId)`                | Activate one tab, deactivate siblings           |
-| `editTab(root, headerId, tabId, changes)`           | Shallow-merge `changes` onto a tab              |
-| `removePane(root, paneId)`                          | Remove a pane, prunes empty containers          |
-| `splitPane(root, rcId, paneId, type, pos, newPane)` | Split a pane into two                           |
-| `applySizes(root, parentId, sizes)`                 | Update child sizes in a row/column              |
-| `insertTabToTabs(tabs, newTab, index)`              | Low-level tab array insertion                   |
-| `getActiveTab(header)`                              | Returns the active tab or `undefined`           |
-| `getTabById(header, tabId)`                         | Returns the tab matching `tabId` or `undefined` |
-| `setActiveTab(tabs, activeTabId?)`                  | Normalise active-tab state on a tab array       |
+| Function                                            | Description                                                          |
+| --------------------------------------------------- | -------------------------------------------------------------------- |
+| `mapItem(root, maps)`                               | Walk the tree, applying per-type callbacks                           |
+| `findItem(predicate, root)`                         | Depth-first search, returns first match                              |
+| `findItemByIdOrFail(id, root)`                      | Like `findItem` but throws if missing                                |
+| `findParentItem(root, predicate)`                   | Returns the item that directly contains a child matching `predicate` |
+| `everyItem(predicate, root)`                        | Returns `true` if predicate holds on every node                      |
+| `insertTab(root, headerId, tab, index?)`            | Insert a tab into a header                                           |
+| `removeTab(root, headerId, tabId)`                  | Remove a tab, normalises active state                                |
+| `insertHeader(root, paneId, header)`                | Attach a header to an empty pane                                     |
+| `activateTab(root, headerId, tabId)`                | Activate one tab, deactivate siblings                                |
+| `editTab(root, headerId, tabId, changes)`           | Shallow-merge `changes` onto a tab                                   |
+| `removePane(root, paneId)`                          | Remove a pane, prunes empty containers                               |
+| `splitPane(root, rcId, paneId, type, pos, newPane)` | Split a pane into two                                                |
+| `applySizes(root, parentId, sizes)`                 | Update child sizes in a row/column                                   |
+| `insertTabToTabs(tabs, newTab, index)`              | Low-level tab array insertion                                        |
+| `getActiveTab(header)`                              | Returns the active tab or `undefined`                                |
+| `getTabById(header, tabId)`                         | Returns the tab matching `tabId` or `undefined`                      |
+| `setActiveTab(tabs, activeTabId?)`                  | Normalise active-tab state on a tab array                            |
+| `maximizePane(root, paneId)`                        | Sets `isMaximized` on `paneId` to `true`, all others to `false`      |
+| `restorePane(root, paneId)`                         | Sets `isMaximized` on `paneId` back to `false`                       |
+| `setMaximizedPanes(root)`                           | Normalises the tree so at most one pane has `isMaximized: true`      |
 
 ---
 

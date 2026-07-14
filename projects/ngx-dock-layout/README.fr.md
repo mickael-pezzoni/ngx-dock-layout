@@ -161,6 +161,7 @@ type Pane = {
   isSplittable?: boolean; // surcharge settings.panes.isSplittable
   canAddTab?: boolean; // surcharge settings.panes.canAddTab
   isClosable?: boolean; // surcharge settings.panes.isClosable
+  isMaximized?: boolean; // indique si ce pane est maximisé (défaut : false)
 };
 ```
 
@@ -171,6 +172,7 @@ type Header = {
   type: 'header';
   id?: string;
   isVisible?: boolean; // surcharge settings.panes.headers.isVisible
+  isMaximizable?: boolean; // surcharge settings.panes.headers.isMaximizable
   tabs: Tab[];
 };
 ```
@@ -210,6 +212,7 @@ const layout: Layout = {
       headers: {
         isVisible: true, // afficher/masquer tous les headers (défaut : true)
         canAddTab: true, // afficher le bouton d'ajout de tab dans les headers (défaut : false)
+        isMaximizable: true, // afficher le bouton maximiser/restaurer dans les headers (défaut : true)
         tabs: {
           isClosable: true, // afficher le bouton de fermeture sur tous les tabs (défaut : true)
           isDraggable: true, // autoriser le déplacement des tabs (défaut : true)
@@ -221,7 +224,7 @@ const layout: Layout = {
 };
 ```
 
-Les headers, panes et tabs individuels peuvent surcharger ces valeurs par défaut via leurs propres propriétés `isVisible` / `isSplittable` / `canAddTab` / `isClosable` / `isDraggable`.
+Les headers, panes et tabs individuels peuvent surcharger ces valeurs par défaut via leurs propres propriétés `isVisible` / `isSplittable` / `canAddTab` / `isClosable` / `isDraggable` / `isMaximizable`.
 
 ## Passer des inputs aux composants de tab
 
@@ -401,11 +404,13 @@ providers: [
       allTabsTooltip: $localize`:@@ndl.allTabsTooltip:All tabs`,
       newTabTooltip: $localize`:@@ndl.newTabTooltip:New tab`,
       newTabDefaultTitle: $localize`:@@ndl.newTabDefaultTitle:New Tab`,
-      editTabTooltip: $localize`:@@ndl.editTabTooltip:Edit Tab`,
-      splitColumnTooltip: $localize`:@@ndl.splitColumnTooltip:Split Column`,
-      splitRowTooltip: $localize`:@@ndl.splitRowTooltip:Split Row`,
-      closePaneTooltip: $localize`:@@ndl.closePaneTooltip:Close Pane`,
+      editTabTooltip: $localize`:@@ndl.editTabTooltip:Edit tab`,
+      splitColumnTooltip: $localize`:@@ndl.splitColumnTooltip:Split column`,
+      splitRowTooltip: $localize`:@@ndl.splitRowTooltip:Split row`,
+      closePaneTooltip: $localize`:@@ndl.closePaneTooltip:Close pane`,
       closeTabTooltip: $localize`:@@ndl.closeTabTooltip:Close tab`,
+      expandPaneTooltip: $localize`:@@ndl.expandPaneTooltip:Maximize pane`,
+      collapsePaneTooltip: $localize`:@@ndl.collapsePaneTooltip:Restore pane`,
     } satisfies NdlLabels,
   },
 ];
@@ -420,11 +425,13 @@ Les IDs `@@ndl.*` permettent à `ng extract-i18n` de collecter ces chaînes auto
 | `allTabsTooltip`     | `"All tabs"`     | Infobulle du bouton de débordement                      |
 | `newTabTooltip`      | `"New tab"`      | Infobulle du bouton d'ajout de tab                      |
 | `newTabDefaultTitle` | `"New Tab"`      | Titre par défaut lors de l'ajout d'un tab par programme |
-| `editTabTooltip`     | `"Edit Tab"`     | Infobulle du bouton d'édition de tab                    |
-| `splitColumnTooltip` | `"Split Column"` | Infobulle du bouton de division en colonne (pane vide)  |
-| `splitRowTooltip`    | `"Split Row"`    | Infobulle du bouton de division en ligne (pane vide)    |
-| `closePaneTooltip`   | `"Close Pane"`   | Infobulle du bouton de fermeture de pane (pane vide)    |
+| `editTabTooltip`     | `"Edit tab"`     | Infobulle du bouton d'édition de tab                    |
+| `splitColumnTooltip` | `"Split column"` | Infobulle du bouton de division en colonne (pane vide)  |
+| `splitRowTooltip`    | `"Split row"`    | Infobulle du bouton de division en ligne (pane vide)    |
+| `closePaneTooltip`   | `"Close pane"`   | Infobulle du bouton de fermeture de pane (pane vide)    |
 | `closeTabTooltip`    | `"Close tab"`    | Infobulle du bouton de fermeture de chaque tab          |
+| `expandPaneTooltip`  | `"Maximize pane"` | Infobulle du bouton d'agrandissement du pane           |
+| `collapsePaneTooltip`| `"Restore pane"`  | Infobulle du bouton de restauration (pane maximisé)    |
 
 ## Thèmes & variables CSS
 

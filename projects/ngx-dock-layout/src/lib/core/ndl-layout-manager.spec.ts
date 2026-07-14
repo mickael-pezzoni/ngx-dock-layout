@@ -178,4 +178,63 @@ describe('NdlLayoutManager', () => {
       expect(newPanes).toBeDefined();
     });
   });
+
+  describe('maximizePane / restorePane / toggleMaximizePane', () => {
+    const twoPaneLayout: Layout = {
+      root: {
+        type: 'row',
+        children: [
+          { type: 'pane', id: 'pane-1' },
+          { type: 'pane', id: 'pane-2' },
+        ],
+      },
+    };
+
+    it('maximizedPane is undefined when no pane is maximized', () => {
+      const mgr = NdlLayoutManager.init({ layout: twoPaneLayout, components: {} });
+      expect(mgr.maximizedPane()).toBeUndefined();
+    });
+
+    it('maximizePane sets the maximizedPane signal to the target pane and its parent', () => {
+      const mgr = NdlLayoutManager.init({ layout: twoPaneLayout, components: {} });
+      mgr.maximizePane('pane-1');
+      expect(mgr.maximizedPane()?.pane.id).toBe('pane-1');
+      expect(mgr.maximizedPane()?.parent.id).toBe(mgr.config().root.id);
+    });
+
+    it('maximizing another pane automatically restores the previous one', () => {
+      const mgr = NdlLayoutManager.init({ layout: twoPaneLayout, components: {} });
+      mgr.maximizePane('pane-1');
+      mgr.maximizePane('pane-2');
+      expect(mgr.maximizedPane()?.pane.id).toBe('pane-2');
+      expect((mgr.findItemByIdOrFail('pane-1') as StrictPane).isMaximized).toBe(false);
+    });
+
+    it('restorePane clears the maximizedPane signal', () => {
+      const mgr = NdlLayoutManager.init({ layout: twoPaneLayout, components: {} });
+      mgr.maximizePane('pane-1');
+      mgr.restorePane('pane-1');
+      expect(mgr.maximizedPane()).toBeUndefined();
+    });
+
+    it('toggleMaximizePane maximizes a non-maximized pane', () => {
+      const mgr = NdlLayoutManager.init({ layout: twoPaneLayout, components: {} });
+      mgr.toggleMaximizePane('pane-1');
+      expect(mgr.maximizedPane()?.pane.id).toBe('pane-1');
+    });
+
+    it('toggleMaximizePane restores an already-maximized pane', () => {
+      const mgr = NdlLayoutManager.init({ layout: twoPaneLayout, components: {} });
+      mgr.toggleMaximizePane('pane-1');
+      mgr.toggleMaximizePane('pane-1');
+      expect(mgr.maximizedPane()).toBeUndefined();
+    });
+
+    it('backConfig undoes a maximizePane action', () => {
+      const mgr = NdlLayoutManager.init({ layout: twoPaneLayout, components: {} });
+      mgr.maximizePane('pane-1');
+      mgr.backConfig();
+      expect(mgr.maximizedPane()).toBeUndefined();
+    });
+  });
 });

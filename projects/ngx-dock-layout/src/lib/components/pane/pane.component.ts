@@ -262,6 +262,7 @@ import { CommonModule } from '@angular/common';
   `,
   host: {
     class: 'ndl-pane',
+    '[class.ndl-pane--maximized]': 'pane().isMaximized',
   },
 })
 export class PaneComponent {

@@ -159,6 +159,7 @@ type Pane = {
   isSplittable?: boolean; // overrides settings.panes.isSplittable
   canAddTab?: boolean; // overrides settings.panes.canAddTab
   isClosable?: boolean; // overrides settings.panes.isClosable
+  isMaximized?: boolean; // whether this pane is maximized (default: false)
 };
 ```
 
@@ -169,6 +170,7 @@ type Header = {
   type: 'header';
   id?: string;
   isVisible?: boolean; // overrides settings.panes.headers.isVisible
+  isMaximizable?: boolean; // overrides settings.panes.headers.isMaximizable
   tabs: Tab[];
 };
 ```
@@ -208,6 +210,7 @@ const layout: Layout = {
       headers: {
         isVisible: true, // show/hide all headers (default: true)
         canAddTab: true, // show add-tab button in headers (default: false)
+        isMaximizable: true, // show maximize/restore button in headers (default: true)
         tabs: {
           isClosable: true, // show close button on all tabs (default: true)
           isDraggable: true, // allow tabs to be dragged (default: true)
@@ -219,7 +222,7 @@ const layout: Layout = {
 };
 ```
 
-Individual headers, panes, and tabs can override these defaults using their own `isVisible` / `isSplittable` / `canAddTab` / `isClosable` / `isDraggable` properties.
+Individual headers, panes, and tabs can override these defaults using their own `isVisible` / `isSplittable` / `canAddTab` / `isClosable` / `isDraggable` / `isMaximizable` properties.
 
 ## Passing Inputs to Tab Components
 
@@ -399,11 +402,13 @@ providers: [
       allTabsTooltip: $localize`:@@ndl.allTabsTooltip:All tabs`,
       newTabTooltip: $localize`:@@ndl.newTabTooltip:New tab`,
       newTabDefaultTitle: $localize`:@@ndl.newTabDefaultTitle:New Tab`,
-      editTabTooltip: $localize`:@@ndl.editTabTooltip:Edit Tab`,
-      splitColumnTooltip: $localize`:@@ndl.splitColumnTooltip:Split Column`,
-      splitRowTooltip: $localize`:@@ndl.splitRowTooltip:Split Row`,
-      closePaneTooltip: $localize`:@@ndl.closePaneTooltip:Close Pane`,
+      editTabTooltip: $localize`:@@ndl.editTabTooltip:Edit tab`,
+      splitColumnTooltip: $localize`:@@ndl.splitColumnTooltip:Split column`,
+      splitRowTooltip: $localize`:@@ndl.splitRowTooltip:Split row`,
+      closePaneTooltip: $localize`:@@ndl.closePaneTooltip:Close pane`,
       closeTabTooltip: $localize`:@@ndl.closeTabTooltip:Close tab`,
+      expandPaneTooltip: $localize`:@@ndl.expandPaneTooltip:Maximize pane`,
+      collapsePaneTooltip: $localize`:@@ndl.collapsePaneTooltip:Restore pane`,
     } satisfies NdlLabels,
   },
 ];
@@ -418,11 +423,13 @@ The `@@ndl.*` IDs let `ng extract-i18n` pick up these strings automatically alon
 | `allTabsTooltip`     | `"All tabs"`     | Tooltip on the overflow dropdown button          |
 | `newTabTooltip`      | `"New tab"`      | Tooltip on the add-tab button                    |
 | `newTabDefaultTitle` | `"New Tab"`      | Default title when adding a tab programmatically |
-| `editTabTooltip`     | `"Edit Tab"`     | Tooltip on the edit-tab button                   |
-| `splitColumnTooltip` | `"Split Column"` | Tooltip on the split-column button (empty pane)  |
-| `splitRowTooltip`    | `"Split Row"`    | Tooltip on the split-row button (empty pane)     |
-| `closePaneTooltip`   | `"Close Pane"`   | Tooltip on the close-pane button (empty pane)    |
+| `editTabTooltip`     | `"Edit tab"`     | Tooltip on the edit-tab button                   |
+| `splitColumnTooltip` | `"Split column"` | Tooltip on the split-column button (empty pane)  |
+| `splitRowTooltip`    | `"Split row"`    | Tooltip on the split-row button (empty pane)     |
+| `closePaneTooltip`   | `"Close pane"`   | Tooltip on the close-pane button (empty pane)    |
 | `closeTabTooltip`    | `"Close tab"`    | Tooltip on the close button of each tab          |
+| `expandPaneTooltip`  | `"Maximize pane"` | Tooltip on the maximize-pane button             |
+| `collapsePaneTooltip`| `"Restore pane"`  | Tooltip on the restore-pane button (shown when the pane is maximized) |
 
 ## Theming & CSS Variables
 

@@ -12,6 +12,8 @@ export enum LayoutActionType {
   RenameTab = 'renameTab',
   MoveTab = 'moveTab',
   DropTabToPane = 'dropTabToPane',
+  MaximizePane = 'maximizePane',
+  RestorePane = 'restorePane',
 }
 
 type ActionArgs = {

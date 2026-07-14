@@ -8,13 +8,14 @@ import {
 } from '@angular/core';
 import { AngularSplitModule } from 'angular-split';
 import { ItemComponent } from './components/item/item.component';
+import { PaneComponent } from './components/pane/pane.component';
 import { NdlLayoutManager } from './core/ndl-layout-manager';
 import { DRAG_PREVIEW_TEMPLATE, EMPTY_PANE_TEMPLATE, GUTTER_SIZE, MANAGER } from './core/token';
 import { StrictHeader, StrictPane, StrictTab } from './core/model';
 
 @Component({
   selector: 'ngx-dock-layout',
-  imports: [AngularSplitModule, ItemComponent],
+  imports: [AngularSplitModule, ItemComponent, PaneComponent],
   providers: [
     {
       provide: MANAGER,
@@ -56,6 +57,17 @@ import { StrictHeader, StrictPane, StrictTab } from './core/model';
       (addHeader)="addHeader.emit($event)"
       (editTab)="editTab.emit($event)"
     />
+    @if (manager().maximizedPane(); as maximized) {
+      <div class="ndl-layout__maximize-overlay">
+        <ndl-pane
+          [pane]="maximized.pane"
+          [parent]="maximized.parent"
+          (addTab)="addTab.emit($event)"
+          (addHeader)="addHeader.emit($event)"
+          (editTab)="editTab.emit($event)"
+        />
+      </div>
+    }
   `,
   styles: `
     @use 'angular-split/theme';
@@ -79,6 +91,12 @@ import { StrictHeader, StrictPane, StrictTab } from './core/model';
     }
     .ndl-layout__drag-overlay--dragging {
       display: block;
+    }
+
+    .ndl-layout__maximize-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 100;
     }
   `,
 })

@@ -7,15 +7,19 @@ import {
   everyItem,
   findItem,
   findItemByIdOrFail,
+  findParentItem,
   getActiveTab,
   getTabById,
   insertHeader,
   insertTab,
   insertTabToTabs,
   mapItem,
+  maximizePane,
   removePane,
   removeTab,
+  restorePane,
   setActiveTab,
+  setMaximizedPanes,
   splitPane,
 } from './layout.utils';
 
@@ -51,12 +55,16 @@ const header1: StrictHeader = {
   id: 'header-1',
   type: 'header',
   canAddTab: false,
+  isVisible: true,
+  isMaximizable: false,
   tabs: [tab1, tab2],
 };
 const header2: StrictHeader = {
   id: 'header-2',
   type: 'header',
   canAddTab: false,
+  isVisible: true,
+  isMaximizable: false,
   tabs: [tab3],
 };
 
@@ -66,6 +74,7 @@ const pane1: StrictPane = {
   isSplittable: true,
   canAddTab: false,
   isClosable: true,
+  isMaximized: false,
   header: header1,
 };
 const pane2: StrictPane = {
@@ -73,6 +82,7 @@ const pane2: StrictPane = {
   type: 'pane',
   isSplittable: true,
   canAddTab: false,
+  isMaximized: false,
   isClosable: true,
   header: header2,
 };
@@ -80,10 +90,19 @@ const pane3: StrictPane = {
   id: 'pane-3',
   type: 'pane',
   isSplittable: true,
+  isMaximized: false,
   canAddTab: false,
   isClosable: true,
 };
 
+const maximizedPane: StrictPane = {
+  id: 'pane-4',
+  type: 'pane',
+  isSplittable: true,
+  isMaximized: true,
+  canAddTab: false,
+  isClosable: true,
+};
 const root: StrictColumn = {
   id: 'column-1',
   type: 'column',
@@ -453,6 +472,7 @@ describe('layout.utils', () => {
       isSplittable: true,
       canAddTab: false,
       isClosable: true,
+      isMaximized: false,
     };
 
     it('replaces the target pane with a new container of the given splitType', () => {
@@ -503,6 +523,97 @@ describe('layout.utils', () => {
     it('does not affect containers that do not match rowOrColumnId', () => {
       const result = splitPane(root, 'row-1', 'pane-1', 'column', 1, paneToAdd);
       expect(findItem(({ id }) => id === 'pane-3', result)).toBeDefined();
+    });
+  });
+
+  describe('setMaximizedPanes', () => {
+    it('leaves the tree untouched when no pane is maximized', () => {
+      const result = setMaximizedPanes(root);
+      expect(everyItem((item) => (item.type === 'pane' ? !item.isMaximized : true), result)).toBe(
+        true,
+      );
+    });
+
+    it('keeps the maximized pane maximized', () => {
+      const rootWithMaximized: StrictColumn = {
+        ...root,
+        children: [...root.children, maximizedPane],
+      };
+      const result = setMaximizedPanes(rootWithMaximized);
+      expect((findItemByIdOrFail('pane-4', result) as StrictPane).isMaximized).toBe(true);
+    });
+
+    it('clears `isMaximized` on every other pane when one is already maximized', () => {
+      const rootWithMaximized: StrictColumn = {
+        ...root,
+        children: [...root.children, maximizedPane],
+      };
+      const result = setMaximizedPanes(rootWithMaximized);
+      expect(
+        everyItem(
+          (item) => (item.type === 'pane' && item.id !== 'pane-4' ? !item.isMaximized : true),
+          result,
+        ),
+      ).toBe(true);
+    });
+
+    it('keeps only the first maximized pane found when several are marked maximized', () => {
+      const secondMaximizedPane: StrictPane = { ...maximizedPane, id: 'pane-5' };
+      const rootWithTwoMaximized: StrictColumn = {
+        ...root,
+        children: [...root.children, maximizedPane, secondMaximizedPane],
+      };
+      const result = setMaximizedPanes(rootWithTwoMaximized);
+      expect((findItemByIdOrFail('pane-4', result) as StrictPane).isMaximized).toBe(true);
+      expect((findItemByIdOrFail('pane-5', result) as StrictPane).isMaximized).toBe(false);
+    });
+  });
+
+  describe('maximizePane', () => {
+    it('sets the `isMaximized` property of the target pane to `true` and sets all others to `false`', () => {
+      const result = maximizePane(
+        {
+          ...root,
+          children: [...root.children, maximizedPane],
+        },
+        'pane-1',
+      );
+      expect(
+        everyItem(
+          (item) => (item.type === 'pane' && item.id !== 'pane-1' ? !item.isMaximized : true),
+          result,
+        ),
+      ).toBe(true);
+      expect((findItemByIdOrFail('pane-1', result) as StrictPane).isMaximized).toBe(true);
+    });
+  });
+  describe('restorePane', () => {
+    it('sets the `isMaximized` property of the target pane to `false`', () => {
+      const maximizedRoot = maximizePane(root, 'pane-1');
+      const result = restorePane(maximizedRoot, 'pane-1');
+      expect((findItemByIdOrFail('pane-1', result) as StrictPane).isMaximized).toBe(false);
+    });
+  });
+
+  describe('findParentItem', () => {
+    it('returns the row containing the target pane', () => {
+      expect(findParentItem(root, ({ id }) => id === 'pane-1')).toMatchObject({ id: 'row-1' });
+    });
+
+    it('returns the root itself when the matching pane is a direct child', () => {
+      expect(findParentItem(root, ({ id }) => id === 'pane-3')).toMatchObject({ id: 'column-1' });
+    });
+
+    it('returns the pane containing the target header', () => {
+      expect(findParentItem(root, ({ id }) => id === 'header-1')).toMatchObject({ id: 'pane-1' });
+    });
+
+    it('returns the header containing the target tab', () => {
+      expect(findParentItem(root, ({ id }) => id === 'tab-1')).toMatchObject({ id: 'header-1' });
+    });
+
+    it('returns undefined when no item matches', () => {
+      expect(findParentItem(root, ({ id }) => id === 'not-found')).toBeUndefined();
     });
   });
 });

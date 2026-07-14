@@ -12,11 +12,13 @@ export const defaultNdlLabels: NdlLabels = {
   allTabsTooltip: 'All tabs',
   newTabTooltip: 'New tab',
   newTabDefaultTitle: 'New Tab',
-  editTabTooltip: 'Edit Tab',
-  splitColumnTooltip: 'Split Column',
-  splitRowTooltip: 'Split Row',
-  closePaneTooltip: 'Close Pane',
+  editTabTooltip: 'Edit tab',
+  splitColumnTooltip: 'Split column',
+  splitRowTooltip: 'Split row',
+  closePaneTooltip: 'Close pane',
   closeTabTooltip: 'Close tab',
+  collapsePaneTooltip: 'Restore pane',
+  expandPaneTooltip: 'Maximize pane',
 };
 
 export const NDL_LABELS = new InjectionToken<NdlLabels>('NDL_LABELS', {

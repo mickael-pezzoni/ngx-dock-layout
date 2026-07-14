@@ -81,6 +81,7 @@ import { NDL_LABELS } from '../../core/token';
     .ndl-tab__actions {
       display: flex;
       align-items: center;
+      padding-right: var(--ndl-spacing-md);
     }
     .ndl-tab__edit,
     .ndl-tab__close {

@@ -89,15 +89,6 @@ export class AppComponent {
         },
       ],
     },
-    settings: {
-      panes: {
-        headers: {
-          tabs: {
-            // isClosable: false,
-          },
-        },
-      },
-    },
   };
 
   readonly layoutManager = NdlLayoutManager.init({

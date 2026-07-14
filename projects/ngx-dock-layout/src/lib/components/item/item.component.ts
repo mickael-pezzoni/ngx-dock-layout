@@ -34,7 +34,7 @@ import { GUTTER_SIZE, MANAGER } from '../../core/token';
             class="ndl-item__area"
             [size]="$safeNavigationMigration($any(child)?.size)"
           >
-            @if (child.type === 'pane') {
+            @if (child.type === 'pane' && !child.isMaximized) {
               <ndl-pane
                 [pane]="child"
                 [parent]="$any(_item)"

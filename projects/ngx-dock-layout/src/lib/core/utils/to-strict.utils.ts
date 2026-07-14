@@ -1,4 +1,4 @@
-import { Components, Header, Pane, Row, Column, Settings, Tab } from '../public-type';
+import { Components, Header, Pane, Row, Column, Settings, Tab, Layout } from '../public-type';
 import {
   StrictHeader,
   StrictPane,
@@ -6,8 +6,9 @@ import {
   StrictColumn,
   StrictSettings,
   StrictTab,
+  StrictLayout,
 } from '../model';
-import { setActiveTab } from './layout.utils';
+import { setActiveTab, setMaximizedPanes } from './layout.utils';
 
 export function transformTabToStrictTab<T extends PropertyKey>(
   tab: Tab,
@@ -49,6 +50,7 @@ export function transformHeaderToStrictHeader<T extends PropertyKey>(
     id: header.id ?? crypto.randomUUID(),
     isVisible: header.isVisible ?? settings?.panes?.headers?.isVisible ?? true,
     canAddTab: header.canAddTab ?? settings?.panes?.headers?.canAddTab ?? false,
+    isMaximizable: header.isMaximizable ?? settings?.panes?.headers?.isMaximizable ?? true,
     tabs: activatedTabs.map((tab) => transformTabToStrictTab(tab, components, settings)),
   };
 }
@@ -67,6 +69,7 @@ export function transformPaneToStrictPane<T extends PropertyKey>(
     isSplittable: pane.isSplittable ?? settings?.panes?.isSplittable ?? true,
     canAddTab: pane.canAddTab ?? settings?.panes?.canAddTab ?? false,
     isClosable: pane.isClosable ?? settings?.panes?.isClosable ?? true,
+    isMaximized: pane.isMaximized ?? false,
   };
 }
 
@@ -83,5 +86,15 @@ export function transformItemToStrictItem<T extends PropertyKey>(
         ? transformPaneToStrictPane(child, components, settings)
         : transformItemToStrictItem(child, components, settings),
     ),
+  };
+}
+
+export function transformRootToStrictRoot<T extends PropertyKey>(
+  layout: Layout,
+  components: Components<T>,
+): StrictLayout {
+  return {
+    root: setMaximizedPanes(transformItemToStrictItem(layout.root, components)),
+    settings: layout.settings ? transformSettingsToStrictSettings(layout.settings) : undefined,
   };
 }

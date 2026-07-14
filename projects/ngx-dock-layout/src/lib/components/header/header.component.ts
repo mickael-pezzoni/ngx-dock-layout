@@ -25,7 +25,7 @@ import { TabComponent } from './tab.component';
 import { IconComponent } from '../icon/icon.component';
 import { NdlLayoutService } from '../../ndl-layout.service';
 import { NdlDragService } from '../../ndl-drag.service';
-import { DRAG_PREVIEW_TEMPLATE, MANAGER, NDL_LABELS } from '../../core/token';
+import { DRAG_PREVIEW_TEMPLATE, defaultNdlLabels, MANAGER, NDL_LABELS } from '../../core/token';
 import { NdlDraggableElementDirective } from '../../core/ndl-draggable-element.directive';
 import { NdlDragPreviewComponent } from '../drag-preview/ndl-drag-preview.component';
 import { CommonModule } from '@angular/common';
@@ -135,13 +135,26 @@ import { NdlDragPreviewContainerComponent } from '../../core/ndl-drag-preview-co
         }
       </div>
     }
-    @if (header().canAddTab) {
-      <div class="ndl-header__end">
+    <div class="ndl-header__end">
+      @if (header().isMaximizable) {
+        <button
+          class="ndl-header__add"
+          [title]="
+            pane().isMaximized
+              ? (labels.collapsePaneTooltip ?? defaultLabels.collapsePaneTooltip)
+              : (labels.expandPaneTooltip ?? defaultLabels.expandPaneTooltip)
+          "
+          (click)="onToggleMaximize()"
+        >
+          <ndl-icon [icon]="pane().isMaximized ? 'collapse_content' : 'expand_content'" />
+        </button>
+      }
+      @if (header().canAddTab) {
         <button class="ndl-header__add" (click)="onAddTab()" [title]="labels.newTabTooltip">
           <ndl-icon icon="add" />
         </button>
-      </div>
-    }
+      }
+    </div>
   `,
   styles: `
     :host {
@@ -286,6 +299,7 @@ export class HeaderComponent {
   readonly dragService = inject(NdlDragService);
   readonly #destroyRef = inject(DestroyRef);
   readonly labels = inject(NDL_LABELS);
+  readonly defaultLabels = defaultNdlLabels;
   readonly dragPreviewTemplate = inject(DRAG_PREVIEW_TEMPLATE, {
     optional: true,
   });
@@ -444,5 +458,12 @@ export class HeaderComponent {
         },
       } satisfies DragTabDataCenter;
     });
+  }
+
+  onToggleMaximize(): void {
+    for (const tab of this.header().tabs) {
+      this.dockLayoutService.detachTabComponent(tab.id);
+    }
+    this.layoutManager().toggleMaximizePane(this.pane().id);
   }
 }

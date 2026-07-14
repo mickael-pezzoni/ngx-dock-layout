@@ -19,18 +19,24 @@ export type Tab = Omit<
   isEditable?: boolean;
   component?: TabComponent;
 };
-export type Header = Omit<StrictHeader, 'id' | 'tabs' | 'canAddTab'> & {
+export type Header = Omit<
+  StrictHeader,
+  'id' | 'tabs' | 'canAddTab' | 'isVisible' | 'isMaximizable'
+> & {
   id?: string;
   canAddTab?: boolean;
+  isVisible?: boolean;
+  isMaximizable?: boolean;
   tabs: Tab[];
 };
 export type Pane = Omit<
   StrictPane,
-  'id' | 'header' | 'isSplittable' | 'canAddTab' | 'isClosable'
+  'id' | 'header' | 'isSplittable' | 'canAddTab' | 'isClosable' | 'isMaximized'
 > & {
   id?: string;
   header?: Header;
   isSplittable?: boolean;
+  isMaximized?: boolean;
   canAddTab?: boolean;
   isClosable?: boolean;
 };
@@ -75,6 +81,10 @@ export interface NdlLabels {
   splitRowTooltip: string;
   closePaneTooltip: string;
   closeTabTooltip: string;
+  // TODO(2.0): consider making required — kept optional so 1.x consumers with a
+  // full custom NdlLabels object don't break; header.component.ts falls back to defaultNdlLabels.
+  expandPaneTooltip?: string;
+  collapsePaneTooltip?: string;
 }
 export type TabContext = {
   tabId: string;
