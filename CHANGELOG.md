@@ -1,3 +1,8 @@
+## [1.1.0](https://github.com/mickael-pezzoni/ngx-dock-layout/compare/v1.0.3...v1.1.0) (2026-07-14)
+
+### Features
+
+* **pane:** add maximize and restore of a pane ([53669b5](https://github.com/mickael-pezzoni/ngx-dock-layout/commit/53669b56b1cd5011bdf4e6fadf32d99d362660ae))
 
 ## [1.0.3](https://github.com/mickael-pezzoni/ngx-dock-layout/compare/v1.0.2...v1.0.3) (2026-07-03)
 
